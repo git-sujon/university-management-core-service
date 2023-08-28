@@ -24,6 +24,36 @@
             "date": 1693209603780,
             "name": "C:\\Users\\User\\Desktop\\University Management\\university-management-core-service\\logs\\winston\\errors\\phu-2023-28-08-14-error.log",
             "hash": "1e5099d2c939ae498a4710bd62cc21d77f19aa6eae4300c20fd290ba35fa9a1c"
+        },
+        {
+            "date": 1693218406397,
+            "name": "C:\\Users\\User\\Desktop\\University Management\\university-management-core-service\\logs\\winston\\errors\\phu-2023-28-08-16-error.log",
+            "hash": "c23279f67255d65ac922bfc2e9878031550d4244714c44296a5f29d59fcaa542"
+        },
+        {
+            "date": 1693223185032,
+            "name": "C:\\Users\\User\\Desktop\\University Management\\university-management-core-service\\logs\\winston\\errors\\phu-2023-28-08-17-error.log",
+            "hash": "5d0c8d7099bb80f899531747c1a63a3b516f54d25fc36a6a3781296981c2bc37"
+        },
+        {
+            "date": 1693224264721,
+            "name": "C:\\Users\\User\\Desktop\\University Management\\university-management-core-service\\logs\\winston\\errors\\phu-2023-28-08-18-error.log",
+            "hash": "6be8229ac0f4fa86a2c7cc1a1d4f033f904437fb980d31b39382c25c2a1ee221"
+        },
+        {
+            "date": 1693228403964,
+            "name": "C:\\Users\\User\\Desktop\\University Management\\university-management-core-service\\logs\\winston\\errors\\phu-2023-28-08-19-error.log",
+            "hash": "6a5634b407672c150326befde7b32554b031526377a5933eb338a5ea29199f65"
+        },
+        {
+            "date": 1693240478870,
+            "name": "C:\\Users\\User\\Desktop\\University Management\\university-management-core-service\\logs\\winston\\errors\\phu-2023-28-08-22-error.log",
+            "hash": "822299bd46b985dd9feea91fe777e6704136b33bab4498c5826bae17ca3d1fb2"
+        },
+        {
+            "date": 1693242064188,
+            "name": "C:\\Users\\User\\Desktop\\University Management\\university-management-core-service\\logs\\winston\\errors\\phu-2023-28-08-23-error.log",
+            "hash": "61068fc750670fa0ce483fd66a815596f6b4d2d97883c4da0aec1f3d32c7903d"
         }
     ],
     "hashType": "sha256"
