@@ -11,7 +11,81 @@ datasource db {
 }
 
 
-model User {
-  id String @id @default(uuid())
-  name String
+
+model AcademicSemester {
+  id         String    @id @default(uuid())
+  year       Int
+  title      String
+  code       String
+  startMonth String
+  endMonth   String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  students   Student[]
+}
+
+model AcademicFaculty {
+  id                  String               @id @default(uuid())
+  title               String
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  academicDepartments AcademicDepartment[]
+  students            Student[]
+  faculties         Faculty[]
+}
+
+model AcademicDepartment {
+  id        String   @id @default(uuid())
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  academicFeculty   AcademicFaculty @relation(fields: [academicFecultyId], references: [id])
+  academicFecultyId String
+  students          Student[]
+  faculties         Faculty[]
+}
+
+model Student {
+  id           String   @id @default(uuid())
+  studentId    String
+  firstName    String
+  lastName     String
+  profileImage String
+  email        String
+  contactNo    String
+  gender       String
+  bloodGroup   String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  academicSemester   AcademicSemester @relation(fields: [academicSemesterId], references: [id])
+  academicSemesterId String
+
+  academicDepartment    AcademicDepartment @relation(fields: [academicDepeartmentId], references: [id])
+  academicDepeartmentId String
+
+  academicFeculty   AcademicFaculty @relation(fields: [academicFecultyId], references: [id])
+  academicFecultyId String
+}
+
+model Faculty {
+  id           String   @id @default(uuid())
+  facultyId    String
+  firstName    String
+  lastName     String
+  profileImage String
+  email        String
+  contactNo    String
+  gender       String
+  bloodGroup   String
+  designation  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  academicDepartment   AcademicDepartment @relation(fields: [academicDepartmentId], references: [id])
+  academicDepartmentId String
+
+  academicFeculty   AcademicFaculty @relation(fields: [academicFecultyId], references: [id])
+  academicFecultyId String
 }

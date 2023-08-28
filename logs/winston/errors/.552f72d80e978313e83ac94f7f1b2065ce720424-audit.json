@@ -1,0 +1,30 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\User\\Desktop\\University Management\\university-management-core-service\\logs\\winston\\errors\\.552f72d80e978313e83ac94f7f1b2065ce720424-audit.json",
+    "files": [
+        {
+            "date": 1693200014945,
+            "name": "C:\\Users\\User\\Desktop\\University Management\\university-management-core-service\\logs\\winston\\errors\\phu-2023-28-08-11-error.log",
+            "hash": "25c72729d82bcd66d0e504e7a742b0cbe2980c31ea0fe3cf6029881f6183f811"
+        },
+        {
+            "date": 1693204435564,
+            "name": "C:\\Users\\User\\Desktop\\University Management\\university-management-core-service\\logs\\winston\\errors\\phu-2023-28-08-12-error.log",
+            "hash": "bb099acba7e4b8be6b90555a4e8bae76d31b72d94500290028da665bfd83a907"
+        },
+        {
+            "date": 1693206108456,
+            "name": "C:\\Users\\User\\Desktop\\University Management\\university-management-core-service\\logs\\winston\\errors\\phu-2023-28-08-13-error.log",
+            "hash": "e97d709c6f7c8ec90cfbc73596bd07837905a5089f441b15faa814ab1c9d16c1"
+        },
+        {
+            "date": 1693209603780,
+            "name": "C:\\Users\\User\\Desktop\\University Management\\university-management-core-service\\logs\\winston\\errors\\phu-2023-28-08-14-error.log",
+            "hash": "1e5099d2c939ae498a4710bd62cc21d77f19aa6eae4300c20fd290ba35fa9a1c"
+        }
+    ],
+    "hashType": "sha256"
+}
