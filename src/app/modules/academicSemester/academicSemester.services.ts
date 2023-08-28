@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { PrismaClient, AcademicSemester, Prisma } from '@prisma/client';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
@@ -21,7 +22,7 @@ const getAllFromDb = async (
   const { page, limit, skip } = paginationHelpers.calculatePagination(options);
   const { searchTerm, ...filterData } = filter;
 
-  console.log("filterData:", filterData)
+ 
 
 
   let andConditions = [];
@@ -52,9 +53,18 @@ const getAllFromDb = async (
 
   const result = await prisma.academicSemester.findMany({
     where: whereConditions,
-
     skip,
     take: limit,
+    orderBy: (options.sortBy && options.sortOrder)
+     ? 
+     {
+      [options.sortBy] : options.sortOrder
+    } 
+    :
+     {
+      createdAt: "desc"
+    }
+    
   });
   const total = await prisma.academicSemester.count();
 

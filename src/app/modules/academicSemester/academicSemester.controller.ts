@@ -4,6 +4,8 @@ import sendResponse from '../../../shared/sendResponse';
 import httpStatus from 'http-status';
 import catchAsync from '../../../shared/catchAsync';
 import pick from '../../../shared/pick';
+import { academicSemesterFilterAbleFields } from './academicSemeter.contents';
+import { paginationFields } from '../../../constants/pagination';
 
 const insertIntoDbController = catchAsync(
   async (req: Request, res: Response) => {
@@ -21,8 +23,8 @@ const insertIntoDbController = catchAsync(
 
 const getAllFromDbController = catchAsync(async(req: Request, res: Response)=> {
 
-  const filter = pick(req.query, ["searchTerm", "code", "startMonth", "endMonth"])
-  const options  = pick (req.query, ["limit", "page", "sortBy", "sortOrder"])
+  const filter = pick(req.query, academicSemesterFilterAbleFields)
+  const options  = pick (req.query, paginationFields)
 
 
 
