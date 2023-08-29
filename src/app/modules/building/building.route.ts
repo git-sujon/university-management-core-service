@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post(
   '/',
-  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  // auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
   validateRequest(BuildingValidation.insertIntoDbValidation),
   BuildingController.insertIntoDbController
 );
@@ -18,4 +18,4 @@ router.get('/', BuildingController.getAllFromDbController);
 router.patch('/:id', BuildingController.updateDataController);
 router.delete('/:id', BuildingController.deleteDataController);
 
-export const StudentRouter = router;
+export const BuildingRouter = router;
