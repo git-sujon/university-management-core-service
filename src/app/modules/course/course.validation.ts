@@ -8,7 +8,7 @@ const insertIntoDbValidation = z.object({
     code: z.string({
       required_error: 'code is required',
     }),
-    credits: z.string({
+    credits: z.number({
       required_error: 'Credits is required',
     }),
     preRequisiteCourses: z.array(
@@ -24,7 +24,7 @@ const updateFromDbValidation = z.object({
     body: z.object({
       title: z.string().optional(),
       code: z.string().optional(),
-      credits: z.string().optional(),
+      credits: z.number().optional(),
       preRequisiteCourses: z.array(
         z.object({
           courseId: z.string(),
