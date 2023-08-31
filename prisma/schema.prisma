@@ -11,15 +11,16 @@ datasource db {
 }
 
 model AcademicSemester {
-  id         String    @id @default(uuid())
-  year       Int
-  title      String
-  code       String
-  startMonth String
-  endMonth   String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  students   Student[]
+  id                   String                 @id @default(uuid())
+  year                 Int
+  title                String
+  code                 String
+  startMonth           String
+  endMonth             String
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  students             Student[]
+  semesterRegistrations SemesterRegistration[]
 }
 
 model AcademicFaculty {
@@ -86,7 +87,7 @@ model Faculty {
 
   academicFeculty   AcademicFaculty @relation(fields: [academicFecultyId], references: [id])
   academicFecultyId String
-  courses     CourseFaculty[]
+  courses           CourseFaculty[]
 }
 
 model Building {
@@ -116,7 +117,7 @@ model Course {
   updatedAt       DateTime               @updatedAt
   preRequisite    CourseTOPrerequisite[] @relation("CourseToPrerequisite")
   PreRequisiteFor CourseTOPrerequisite[] @relation("prerequisiteToCourse")
-  faculties   CourseFaculty[]
+  faculties       CourseFaculty[]
 }
 
 model CourseTOPrerequisite {
@@ -137,4 +138,24 @@ model CourseFaculty {
   facultyId String
 
   @@id([courseId, facultyId])
+}
+
+model SemesterRegistration {
+  id        String                      @id @default(uuid())
+  startDate DateTime
+  endDate   DateTime
+  status    SemesterRegistrationStatus? @default(UPCOMING)
+  minCredit Int                         @default(0)
+  maxCredit Int                         @default(0)
+  createdAt DateTime                    @default(now())
+  updatedAt DateTime                    @updatedAt
+
+  academicSemester   AcademicSemester @relation(fields: [academicSemesterId], references: [id])
+  academicSemesterId String
+}
+
+enum SemesterRegistrationStatus {
+  UPCOMING
+  ONGOING
+  ENDED
 }
