@@ -33,7 +33,17 @@ const updateFromDbValidation = z.object({
     }),
   });
 
+
+  const assignOrRemoveCourses = z.object({
+    body:z.object({
+      faculties:z.array(z.string(), {
+        required_error:"faculties are required"
+      })
+    })
+  })
+
 export const CourseValidation = {
   insertIntoDbValidation,
-  updateFromDbValidation
+  updateFromDbValidation,
+  assignOrRemoveCourses
 };

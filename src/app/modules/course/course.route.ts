@@ -2,6 +2,7 @@ import express from 'express';
 import { CourseController } from './course.controller';
 import validateRequest from '../../middlewares/validateRequest';
 import { CourseValidation } from './course.validation';
+import { FacultyValidation } from '../faculty/faculty.validation';
 
 const router = express.Router();
 
@@ -20,7 +21,15 @@ router.patch(
 );
 router.delete('/:id', CourseController.deleteDataController);
 
-router.post('/:id/assign-faculties', CourseController.assignFacultiesController)
-router.delete('/:id/delete-faculties', CourseController.deleteAssignFacultiesController)
+router.post(
+  '/:id/assign-faculties',
+  validateRequest(FacultyValidation.assignOrRemoveFaculties),
+  CourseController.assignFacultiesController
+);
+router.delete(
+  '/:id/delete-faculties',
+  validateRequest(FacultyValidation.assignOrRemoveFaculties),
+  CourseController.deleteAssignFacultiesController
+);
 
 export const CourseRouter = router;
