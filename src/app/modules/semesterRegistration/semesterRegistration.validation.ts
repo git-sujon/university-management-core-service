@@ -1,4 +1,5 @@
-import { z } from 'zod';
+import { SemesterRegistrationStatus } from '@prisma/client';
+import {  z } from 'zod';
 
 const insertIntoDbValidation = z.object({
   body: z.object({
@@ -8,9 +9,22 @@ const insertIntoDbValidation = z.object({
     endDate: z.string({
       required_error: 'End date is required',
     }),
-    status: z.enum(['UPCOMING', 'ONGOING', 'ENDED']).optional(),
-    minCredit: z.number().int().optional(),
-    maxCredit: z.number().int().optional(),
+    status: z
+      .enum([...Object.values(SemesterRegistrationStatus)] as [
+        string,
+        ...string[]
+      ])
+      .optional(),
+    minCredit: z
+      .number({
+        required_error: 'minCredit is required',
+      })
+      .int(),
+    maxCredit: z
+      .number({
+        required_error: 'maxCredit is required',
+      })
+      .int(),
     academicSemesterId: z.string({
       required_error: 'Academic semester ID is required',
     }),
@@ -21,9 +35,14 @@ const updateFromDbValidation = z.object({
   body: z.object({
     startDate: z.string().optional(),
     endDate: z.string().optional(),
-    status: z.enum(['UPCOMING', 'ONGOING', 'ENDED']).optional(),
-    minCredit: z.number().int().optional(),
-    maxCredit: z.number().int().optional(),
+    status: z
+      .enum([...Object.values(SemesterRegistrationStatus)] as [
+        string,
+        ...string[]
+      ])
+      .optional(),
+    minCredit: z.number().optional(),
+    maxCredit: z.number().optional(),
     academicSemesterId: z.string().optional(),
   }),
 });
