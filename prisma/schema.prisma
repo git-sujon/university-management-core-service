@@ -11,15 +11,15 @@ datasource db {
 }
 
 model AcademicSemester {
-  id                   String                 @id @default(uuid())
-  year                 Int
-  title                String
-  code                 String
-  startMonth           String
-  endMonth             String
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-  students             Student[]
+  id                    String                 @id @default(uuid())
+  year                  Int
+  title                 String
+  code                  String
+  startMonth            String
+  endMonth              String
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  students              Student[]
   semesterRegistrations SemesterRegistration[]
 }
 
@@ -39,10 +39,11 @@ model AcademicDepartment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  academicFeculty   AcademicFaculty @relation(fields: [academicFecultyId], references: [id])
+  academicFeculty   AcademicFaculty  @relation(fields: [academicFecultyId], references: [id])
   academicFecultyId String
   students          Student[]
   faculties         Faculty[]
+  offeredCourses    OfferedCourses[]
 }
 
 model Student {
@@ -118,6 +119,7 @@ model Course {
   preRequisite    CourseTOPrerequisite[] @relation("CourseToPrerequisite")
   PreRequisiteFor CourseTOPrerequisite[] @relation("prerequisiteToCourse")
   faculties       CourseFaculty[]
+  offeredCourses  OfferedCourses[]
 }
 
 model CourseTOPrerequisite {
@@ -150,12 +152,42 @@ model SemesterRegistration {
   createdAt DateTime                    @default(now())
   updatedAt DateTime                    @updatedAt
 
-  academicSemester   AcademicSemester @relation(fields: [academicSemesterId], references: [id])
-  academicSemesterId String
+  academicSemester      AcademicSemester        @relation(fields: [academicSemesterId], references: [id])
+  academicSemesterId    String
+  offeredCourses        OfferedCourses[]
+  offeredCoursesSections OfferedCoursesSection[]
 }
 
 enum SemesterRegistrationStatus {
   UPCOMING
   ONGOING
   ENDED
+}
+
+model OfferedCourses {
+  id                   String             @id @default(uuid())
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  course               Course             @relation(fields: [courseId], references: [id])
+  courseId             String
+  academicDepartment   AcademicDepartment @relation(fields: [academicDepartmentId], references: [id])
+  academicDepartmentId String
+
+  semesterRegistration   SemesterRegistration    @relation(fields: [semesterRegistrationId], references: [id])
+  semesterRegistrationId String
+  offeredCoursesSections  OfferedCoursesSection[]
+}
+
+model OfferedCoursesSection {
+  id                       String         @id @default(uuid())
+  title                    String
+  maxCapacity              Int
+  currentlyEnrolledStudent Int @default(0)
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime       @updatedAt
+  offeredCourses           OfferedCourses @relation(fields: [offeredCoursesId], references: [id])
+  offeredCoursesId         String
+
+  semesterRegistration   SemesterRegistration @relation(fields: [semesterRegistrationId], references: [id])
+  semesterRegistrationId String
 }

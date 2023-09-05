@@ -1,3 +1,3 @@
 export const academicDepartmentSearchAbleFields = ["title"]
 
-export const academicDepartmentFilterAbleFields = ["searchTerm"]
+export const academicDepartmentFilterAbleFields = ["searchTerm", "title"]
