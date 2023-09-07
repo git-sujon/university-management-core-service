@@ -82,7 +82,7 @@ const deleteData = async (
   return result;
 };
 
-export const BuildingServices = {
+export const offeredCoursesSectionServices = {
   insertIntoDb,
   getAllFromDb,
   getDataByID,

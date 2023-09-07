@@ -4,11 +4,11 @@ import { paginationFields } from '../../../constants/pagination';
 import catchAsync from '../../../shared/catchAsync';
 import pick from '../../../shared/pick';
 import sendResponse from '../../../shared/sendResponse';
-import { offeredCoursesSectionServices } from './offeredCoursesSection.services';
+import { OfferedCoursesClassScheduleServices } from './OfferedCoursesClassSchedule.services';
 
 const insertIntoDbController = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await offeredCoursesSectionServices.insertIntoDb(req.body);
+    const result = await OfferedCoursesClassScheduleServices.insertIntoDb(req.body);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -23,7 +23,7 @@ const getAllFromDbController = catchAsync(
   async (req: Request, res: Response) => {
     const options = pick(req.query, paginationFields);
 
-    const result = await offeredCoursesSectionServices.getAllFromDb(options);
+    const result = await OfferedCoursesClassScheduleServices.getAllFromDb(options);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -39,7 +39,7 @@ const getDataByIDController = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    const result = await offeredCoursesSectionServices.getDataByID(id);
+    const result = await OfferedCoursesClassScheduleServices.getDataByID(id);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -53,7 +53,7 @@ const updateDataController = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const payload = req.body;
 
-  const result = await offeredCoursesSectionServices.UpdateData(id, payload);
+  const result = await OfferedCoursesClassScheduleServices.UpdateData(id, payload);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -66,7 +66,7 @@ const updateDataController = catchAsync(async (req: Request, res: Response) => {
 const deleteDataController = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  const result = await offeredCoursesSectionServices.deleteData(id);
+  const result = await OfferedCoursesClassScheduleServices.deleteData(id);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -76,7 +76,7 @@ const deleteDataController = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const OfferedCoursesSectionController = {
+export const OfferedCoursesClassScheduleController = {
   insertIntoDbController,
   getAllFromDbController,
   getDataByIDController,
