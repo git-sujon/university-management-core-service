@@ -24,10 +24,10 @@ const insertIntoDbController = catchAsync(
 
 const getAllFromDbController = catchAsync(
   async (req: Request, res: Response) => {
-    const filter = pick(req.query, facultyFilterAbleFields);
+    const filters = pick(req.query, facultyFilterAbleFields);
     const options = pick(req.query, paginationFields);
 
-    const result = await FacultyServices.getAllFromDb(filter, options);
+    const result = await FacultyServices.getAllFromDb(filters, options);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,

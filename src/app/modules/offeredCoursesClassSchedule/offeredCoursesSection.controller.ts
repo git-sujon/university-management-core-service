@@ -5,6 +5,7 @@ import catchAsync from '../../../shared/catchAsync';
 import pick from '../../../shared/pick';
 import sendResponse from '../../../shared/sendResponse';
 import { OfferedCoursesClassScheduleServices } from './OfferedCoursesClassSchedule.services';
+import { offeredCourseClassScheduleFilterableFields } from './OfferedCoursesClassSchedule.constents';
 
 const insertIntoDbController = catchAsync(
   async (req: Request, res: Response) => {
@@ -21,9 +22,10 @@ const insertIntoDbController = catchAsync(
 
 const getAllFromDbController = catchAsync(
   async (req: Request, res: Response) => {
+    const filters = pick(req.query, offeredCourseClassScheduleFilterableFields);
     const options = pick(req.query, paginationFields);
 
-    const result = await OfferedCoursesClassScheduleServices.getAllFromDb(options);
+    const result = await OfferedCoursesClassScheduleServices.getAllFromDb(filters, options);
 
     sendResponse(res, {
       statusCode: httpStatus.OK,

@@ -13,6 +13,11 @@ router.post(
   validateRequest(SemesterRegistrationValidation.insertIntoDbValidation),
   SemesterRegistrationController.insertIntoDbController
 );
+router.post(
+  '/start-my-registration',
+  auth(ENUM_USER_ROLE.STUDENT),
+  SemesterRegistrationController.startMyRegistrationController
+);
 router.get('/:id', SemesterRegistrationController.getDataByIDController);
 router.get('/', SemesterRegistrationController.getAllFromDbController);
 router.patch(

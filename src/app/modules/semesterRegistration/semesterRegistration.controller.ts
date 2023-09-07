@@ -7,8 +7,6 @@ import sendResponse from '../../../shared/sendResponse';
 import { SemesterRegistrationServices } from './semesterRegistration.services';
 import { semesterRegistrationFilterAbleFields } from './semesterRegistration.contents';
 
-
-
 const insertIntoDbController = catchAsync(
   async (req: Request, res: Response) => {
     const result = await SemesterRegistrationServices.insertIntoDb(req.body);
@@ -27,7 +25,10 @@ const getAllFromDbController = catchAsync(
     const filter = pick(req.query, semesterRegistrationFilterAbleFields);
     const options = pick(req.query, paginationFields);
 
-    const result = await SemesterRegistrationServices.getAllFromDb(filter, options);
+    const result = await SemesterRegistrationServices.getAllFromDb(
+      filter,
+      options
+    );
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -67,16 +68,31 @@ const updateDataController = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const deleteDataController = catchAsync(
-  async (req: Request, res: Response) => {
-    const { id } = req.params;
+const deleteDataController = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
 
-    const result = await SemesterRegistrationServices.deleteData(id);
+  const result = await SemesterRegistrationServices.deleteData(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Data delete successfully',
+    data: result,
+  });
+});
+
+const startMyRegistrationController = catchAsync(
+  async (req: Request, res: Response) => {
+    const userData = (req as any).user;
+
+    const result = await SemesterRegistrationServices.startMyRegistration(
+      userData.userId
+    );
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Data delete successfully',
+      message: 'Data Inserted successfully',
       data: result,
     });
   }
@@ -87,5 +103,6 @@ export const SemesterRegistrationController = {
   getAllFromDbController,
   getDataByIDController,
   updateDataController,
-  deleteDataController
+  deleteDataController,
+  startMyRegistrationController,
 };

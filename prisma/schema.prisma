@@ -65,8 +65,9 @@ model Student {
   academicDepartment    AcademicDepartment @relation(fields: [academicDepeartmentId], references: [id])
   academicDepeartmentId String
 
-  academicFeculty   AcademicFaculty @relation(fields: [academicFecultyId], references: [id])
-  academicFecultyId String
+  academicFeculty             AcademicFaculty               @relation(fields: [academicFecultyId], references: [id])
+  academicFecultyId           String
+  studentSemesterRegistrations StudentSemesterRegistration[]
 }
 
 model Faculty {
@@ -159,6 +160,7 @@ model SemesterRegistration {
   offeredCourses               OfferedCourses[]
   offeredCoursesSections       OfferedCoursesSection[]
   offeredCoursesClassSchedules OfferedCoursesClassSchedule[]
+  studentSemesterRegistrations  StudentSemesterRegistration[]
 }
 
 enum SemesterRegistrationStatus {
@@ -226,4 +228,17 @@ enum WeekDays {
   Thursday
   Friday
   Saturday
+}
+
+model StudentSemesterRegistration {
+  id                String   @id @default(uuid())
+  isConfirmed       Boolean @default(false)
+  totalCreditsTaken Int @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  semesterRegistration   SemesterRegistration @relation(fields: [semesterRegistrationId], references: [id])
+  semesterRegistrationId String
+  student                Student              @relation(fields: [studentId], references: [id])
+  studentId              String
 }
