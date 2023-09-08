@@ -4,6 +4,7 @@ import {
   Prisma,
   SemesterRegistration,
   SemesterRegistrationStatus,
+  StudentSemesterRegistration,
 } from '@prisma/client';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
@@ -164,51 +165,81 @@ const deleteData = async (id: string): Promise<SemesterRegistration | null> => {
   return result;
 };
 
-const startMyRegistration = async(authUserId:string) =>{
-const studentInfo = await prisma.student.findFirst({
-  where:{
-    studentId:authUserId
+const startMyRegistration = async (
+  authUserId: string
+): Promise<{
+  semesterRegistration: SemesterRegistration | null;
+  studentSemesterRegistration: StudentSemesterRegistration | null;
+}> => {
+  const studentInfo = await prisma.student.findFirst({
+    where: {
+      studentId: authUserId,
+    },
+  });
+
+  if (!studentInfo) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Student not found');
   }
-})
 
-if(!studentInfo){
-  throw new ApiError(httpStatus.BAD_REQUEST, "Student not found")
-}
+  const SemesterRegistrationInfo = await prisma.semesterRegistration.findFirst({
+    where: {
+      status: {
+        in: [
+          SemesterRegistrationStatus.ONGOING,
+          SemesterRegistrationStatus.UPCOMING,
+        ],
+      },
+    },
+  });
 
-
-const SemesterRegistrationInfo= await prisma.semesterRegistration.findFirst({
-  where:{
-    status: {
-      in:[SemesterRegistrationStatus.ONGOING , SemesterRegistrationStatus.UPCOMING]
-    }
+  if (!SemesterRegistrationInfo) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'No semester is available write now'
+    );
   }
-})
-console.log(SemesterRegistrationInfo)
-if(!SemesterRegistrationInfo){
-  throw new ApiError(httpStatus.BAD_REQUEST, "No semester is available write now")
-}
 
-if(SemesterRegistrationInfo?.status === SemesterRegistrationStatus.UPCOMING){
-  throw new ApiError(httpStatus.BAD_REQUEST, "Registration is Not Started yet")
-}
-
-const result = await prisma.studentSemesterRegistration.create({
-  data:{
-    semesterRegistrationId: SemesterRegistrationInfo?.id,
-    studentId:studentInfo?.id
-  },
-  include:{
-    semesterRegistration:true,
-    student:true
+  if (
+    SemesterRegistrationInfo?.status === SemesterRegistrationStatus.UPCOMING
+  ) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Registration is Not Started yet'
+    );
   }
-})
+
+  let studentSemesterRegistration =
+    await prisma.studentSemesterRegistration.findFirst({
+      where: {
+        student: {
+          id: studentInfo.id,
+        },
+        semesterRegistration: {
+          id: SemesterRegistrationInfo.id,
+        },
+      },
+    });
 
 
-return result
+  if (!studentSemesterRegistration) {
+    studentSemesterRegistration =
+      await prisma.studentSemesterRegistration.create({
+        data: {
+          semesterRegistrationId: SemesterRegistrationInfo?.id,
+          studentId: studentInfo?.id,
+        },
+        include: {
+          semesterRegistration: true,
+          student: true,
+        },
+      });
+  }
 
-
-
-}
+  return {
+    semesterRegistration: SemesterRegistrationInfo,
+    studentSemesterRegistration: studentSemesterRegistration,
+  };
+};
 
 export const SemesterRegistrationServices = {
   insertIntoDb,
@@ -216,5 +247,5 @@ export const SemesterRegistrationServices = {
   getDataByID,
   UpdateData,
   deleteData,
-  startMyRegistration
+  startMyRegistration,
 };
