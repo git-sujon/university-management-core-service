@@ -10,7 +10,10 @@ import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import prisma from '../../../shared/prisma';
-import { ISemesterRegistrationSearchTerm } from './semesterRegistration.interface';
+import {
+  ICreateStudentSemesterRegistrationCourses,
+  ISemesterRegistrationSearchTerm,
+} from './semesterRegistration.interface';
 import { semesterRegistrationSearchAbleFields } from './semesterRegistration.contents';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
@@ -220,7 +223,6 @@ const startMyRegistration = async (
       },
     });
 
-
   if (!studentSemesterRegistration) {
     studentSemesterRegistration =
       await prisma.studentSemesterRegistration.create({
@@ -241,6 +243,45 @@ const startMyRegistration = async (
   };
 };
 
+const enrollIntoCourses = async (
+  authUserId: string,
+  payload: ICreateStudentSemesterRegistrationCourses
+) => {
+  const studentInfo = await prisma.student.findFirst({
+    where: {
+      studentId: authUserId,
+    },
+  });
+
+  if (!studentInfo) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Student Not found');
+  }
+
+  const SemesterRegistrationInfo = await prisma.semesterRegistration.findFirst({
+    where: {
+      status: SemesterRegistrationStatus.ONGOING,
+    },
+  });
+
+  if (!SemesterRegistrationInfo) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'No SemesterRegistration is ONGOING right now '
+    );
+  }
+
+  const result = await prisma.studentSemesterRegistrationCourses.create({
+    data: {
+      semesterRegistrationId: SemesterRegistrationInfo?.id,
+      studentId: studentInfo?.id,
+      offeredCoursesId: payload.offeredCoursesId,
+      offeredCoursesSectionId: payload.offeredCoursesSectionId,
+    },
+  });
+
+  return result;
+};
+
 export const SemesterRegistrationServices = {
   insertIntoDb,
   getAllFromDb,
@@ -248,4 +289,5 @@ export const SemesterRegistrationServices = {
   UpdateData,
   deleteData,
   startMyRegistration,
+  enrollIntoCourses,
 };

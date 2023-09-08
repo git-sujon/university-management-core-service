@@ -1,3 +1,8 @@
 export type ISemesterRegistrationSearchTerm = {
-    searchTerm? : string
-}
+  searchTerm?: string;
+};
+
+export type ICreateStudentSemesterRegistrationCourses = {
+  offeredCoursesId: string;
+  offeredCoursesSectionId: string;
+};
