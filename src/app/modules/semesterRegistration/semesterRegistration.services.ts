@@ -310,6 +310,49 @@ const confirmMyRegistration = async (
   return { message: 'Semester Registration Confirm' };
 };
 
+const getMyRegistration = async (authUserId: string) => {
+  const semesterRegistrationInfo = await prisma.semesterRegistration.findFirst({
+    where: {
+      status: SemesterRegistrationStatus.ONGOING,
+    },
+    include: {
+      academicSemester: true,
+      studentSemesterRegistrations: true,
+      studentSemesterRegistrationCourses: true,
+      offeredCourses: true,
+      offeredCoursesClassSchedules: true,
+      offeredCoursesSections: true,
+    },
+  });
+
+  const studentSemesterRegistrationInfo =
+    await prisma.studentSemesterRegistration.findFirst({
+      where: {
+        semesterRegistrationId: semesterRegistrationInfo?.id,
+        student: {
+          studentId: authUserId,
+        },
+      },
+
+      include: {
+        semesterRegistration: true,
+        student: true,
+      },
+    });
+
+  if (!studentSemesterRegistrationInfo || !semesterRegistrationInfo) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      'You are not recognized for this semester'
+    );
+  }
+
+  return {
+    studentSemesterRegistrationInfo,
+    semesterRegistrationInfo,
+  };
+};
+
 export const SemesterRegistrationServices = {
   insertIntoDb,
   getAllFromDb,
@@ -320,4 +363,5 @@ export const SemesterRegistrationServices = {
   enrollIntoCourses,
   withdrawFromCourses,
   confirmMyRegistration,
+  getMyRegistration,
 };

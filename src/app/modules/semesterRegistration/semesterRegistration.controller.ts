@@ -148,6 +148,23 @@ const confirmMyRegistrationController = catchAsync(
     });
   }
 );
+const getMyRegistrationController = catchAsync(
+  async (req: Request, res: Response) => {
+    const userData = (req as any).user;
+
+
+    const result = await SemesterRegistrationServices.getMyRegistration(
+      userData.userId
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Your registration Found',
+      data: result,
+    });
+  }
+);
 
 export const SemesterRegistrationController = {
   insertIntoDbController,
@@ -158,5 +175,6 @@ export const SemesterRegistrationController = {
   startMyRegistrationController,
   enrollIntoCoursesController,
   withdrawFromCoursesController,
-  confirmMyRegistrationController
+  confirmMyRegistrationController,
+  getMyRegistrationController
 };
