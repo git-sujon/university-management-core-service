@@ -21,12 +21,20 @@ router.post(
 router.post(
   '/enroll-into-courses',
   auth(ENUM_USER_ROLE.STUDENT),
+  validateRequest(SemesterRegistrationValidation.enrollOrWithdrawCourse),
   SemesterRegistrationController.enrollIntoCoursesController
 );
 router.post(
   '/withdraw-from-courses',
   auth(ENUM_USER_ROLE.STUDENT),
+  validateRequest(SemesterRegistrationValidation.enrollOrWithdrawCourse),
   SemesterRegistrationController.withdrawFromCoursesController
+);
+
+router.post(
+  '/confirm-my-registration',
+  auth(ENUM_USER_ROLE.STUDENT),
+  SemesterRegistrationController.confirmMyRegistrationController
 );
 router.get('/:id', SemesterRegistrationController.getDataByIDController);
 router.get('/', SemesterRegistrationController.getAllFromDbController);

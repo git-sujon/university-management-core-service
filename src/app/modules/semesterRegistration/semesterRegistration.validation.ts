@@ -47,7 +47,20 @@ const updateFromDbValidation = z.object({
   }),
 });
 
+
+const enrollOrWithdrawCourse = z.object({
+  body:z.object({
+    offeredCoursesId: z.string({
+      required_error:"offeredCoursesId is required"
+    }),
+    offeredCoursesSectionId: z.string({
+      required_error:"offeredCoursesSectionId is required"
+    })
+  })
+}) 
+
 export const SemesterRegistrationValidation = {
   insertIntoDbValidation,
   updateFromDbValidation,
+  enrollOrWithdrawCourse
 };
