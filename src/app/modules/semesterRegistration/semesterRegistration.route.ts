@@ -23,6 +23,11 @@ router.post(
   auth(ENUM_USER_ROLE.STUDENT),
   SemesterRegistrationController.enrollIntoCoursesController
 );
+router.post(
+  '/withdraw-from-courses',
+  auth(ENUM_USER_ROLE.STUDENT),
+  SemesterRegistrationController.withdrawFromCoursesController
+);
 router.get('/:id', SemesterRegistrationController.getDataByIDController);
 router.get('/', SemesterRegistrationController.getAllFromDbController);
 router.patch(
