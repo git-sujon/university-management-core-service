@@ -1,23 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable prefer-const */
 import {
+  Course,
+  OfferedCourses,
   Prisma,
   SemesterRegistration,
   SemesterRegistrationStatus,
   StudentSemesterRegistration,
+  StudentSemesterRegistrationCourses,
 } from '@prisma/client';
+import httpStatus from 'http-status';
+import ApiError from '../../../errors/ApiError';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import prisma from '../../../shared/prisma';
+import { asyncForEach } from '../../../shared/utils';
+import { StudentSemesterRegistrationCoursesServices } from '../studentSemesterRegistrationCourses/studentSemesterRegistrationCourses.services';
+import { semesterRegistrationSearchAbleFields } from './semesterRegistration.contents';
 import {
   ICreateStudentSemesterRegistrationCourses,
   ISemesterRegistrationSearchTerm,
 } from './semesterRegistration.interface';
-import { semesterRegistrationSearchAbleFields } from './semesterRegistration.contents';
-import ApiError from '../../../errors/ApiError';
-import httpStatus from 'http-status';
-import { StudentSemesterRegistrationCoursesServices } from '../studentSemesterRegistrationCourses/studentSemesterRegistrationCourses.services';
+import { StudentSemesterPaymentServices } from '../studentSemesterPayment/studentSemesterPayment.sevices';
+import { StudentEnrolledCoursesMarkServices } from '../studentEnrolledCoursesMark/studentEnrolledCoursesMark.services';
 
 const insertIntoDb = async (data: SemesterRegistration) => {
   const ISemesterRegistrationUpcomingOrOngoing =
@@ -353,6 +359,140 @@ const getMyRegistration = async (authUserId: string) => {
   };
 };
 
+const startNewSemester = async (id: string): Promise<{ message: string }> => {
+  const semesterRegistrationInfo = await prisma.semesterRegistration.findUnique(
+    {
+      where: {
+        id,
+      },
+      include: {
+        academicSemester: true,
+      },
+    }
+  );
+
+  if (!semesterRegistrationInfo) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Semester Registration not found');
+  }
+
+  if (semesterRegistrationInfo.status !== SemesterRegistrationStatus.ENDED) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Semester Registration is not ended yet'
+    );
+  }
+  if (semesterRegistrationInfo.academicSemester.isActive) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Semester is already Started');
+  }
+
+  await prisma.$transaction(async startNewSemesterTransaction => {
+    await startNewSemesterTransaction.academicSemester.updateMany({
+      where: {
+        isActive: true,
+      },
+      data: {
+        isActive: false,
+      },
+    });
+
+    await startNewSemesterTransaction.academicSemester.update({
+      where: {
+        id: semesterRegistrationInfo.academicSemester.id,
+      },
+      data: {
+        isActive: true,
+      },
+    });
+
+    const studentSemesterRegistrationInfo =
+      await startNewSemesterTransaction.studentSemesterRegistration.findMany({
+        where: {
+          semesterRegistrationId: semesterRegistrationInfo.id,
+          isConfirmed: true,
+        },
+      });
+
+    asyncForEach(
+      studentSemesterRegistrationInfo,
+      async (studentSemesterRegistration: StudentSemesterRegistration) => {
+        const totalPaymentAmount =
+          studentSemesterRegistration.totalCreditsTaken * 5000;
+
+        await StudentSemesterPaymentServices.createSemesterPayment(
+          startNewSemesterTransaction,
+          {
+            studentId: studentSemesterRegistration.studentId,
+            academicSemesterId: semesterRegistrationInfo.academicSemesterId,
+            fullPaymentAmount: totalPaymentAmount,
+          }
+        );
+
+        const studentSemesterRegistrationCourses =
+          await prisma.studentSemesterRegistrationCourses.findMany({
+            where: {
+              semesterRegistration: {
+                id,
+              },
+              student: {
+                id: studentSemesterRegistration.studentId,
+              },
+            },
+            include: {
+              offeredCourses: {
+                include: {
+                  course: true,
+                },
+              },
+            },
+          });
+
+        asyncForEach(
+          studentSemesterRegistrationCourses,
+          async (
+            item: StudentSemesterRegistrationCourses & {
+              offeredCourses: OfferedCourses & {
+                course: Course;
+              };
+            }
+          ) => {
+            const isExistStudentEnrollCourses =
+              await prisma.studentEnrolledCourses.findFirst({
+                where: {
+                  studentId: item.studentId,
+                  courseId: item.offeredCourses.courseId,
+                  academicSemesterId:
+                    semesterRegistrationInfo.academicSemester.id,
+                },
+              });
+
+            if (!isExistStudentEnrollCourses) {
+              const enrollCourseData = {
+                studentId: item.studentId,
+                courseId: item.offeredCourses.courseId,
+                academicSemesterId:
+                  semesterRegistrationInfo.academicSemester.id,
+              };
+
+            const studentEnrollCourses =  await prisma.studentEnrolledCourses.create({
+                data: enrollCourseData,
+              });
+              await StudentEnrolledCoursesMarkServices.createStudentEnrolledCoursesMark(startNewSemesterTransaction, {
+                studentId: item.studentId,
+                studentEnrolledCoursesId: studentEnrollCourses.id,
+                academicSemesterId:semesterRegistrationInfo.academicSemesterId,
+              })
+            }
+          }
+        );
+      }
+    );
+  });
+
+  return {
+    message: 'Semester started successfully',
+  };
+};
+
 export const SemesterRegistrationServices = {
   insertIntoDb,
   getAllFromDb,
@@ -364,4 +504,5 @@ export const SemesterRegistrationServices = {
   withdrawFromCourses,
   confirmMyRegistration,
   getMyRegistration,
+  startNewSemester,
 };

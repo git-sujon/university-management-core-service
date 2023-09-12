@@ -11,6 +11,7 @@ import { SemesterRegistrationRouter } from '../modules/semesterRegistration/seme
 import { OfferedCoursesRouter } from '../modules/offeredCourses/offeredCourses.route';
 import { OfferedCoursesSectionRouter } from '../modules/offeredCoursesSection/offeredCoursesSection.route';
 import { OfferedCoursesClassScheduleRouter } from '../modules/offeredCoursesClassSchedule/offeredCoursesSection.route';
+import { StudentEnrolledCoursesMarksRoutes } from '../modules/studentEnrolledCoursesMark/studentEnrolledCoursesMark.route';
 
 const router = express.Router();
 
@@ -63,6 +64,10 @@ const moduleRoutes = [
   {
     path: "/offered-courses-class-schedule",
     route: OfferedCoursesClassScheduleRouter
+  },
+  {
+    path: "/student-enroll-course-mark",
+    route: StudentEnrolledCoursesMarksRoutes
   },
 ];
 

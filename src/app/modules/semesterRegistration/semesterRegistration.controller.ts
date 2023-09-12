@@ -100,7 +100,7 @@ const startMyRegistrationController = catchAsync(
 const enrollIntoCoursesController = catchAsync(
   async (req: Request, res: Response) => {
     const userData = (req as any).user;
-    const payload = req.body
+    const payload = req.body;
     const result = await SemesterRegistrationServices.enrollIntoCourses(
       userData.userId,
       payload
@@ -117,7 +117,7 @@ const enrollIntoCoursesController = catchAsync(
 const withdrawFromCoursesController = catchAsync(
   async (req: Request, res: Response) => {
     const userData = (req as any).user;
-    const payload = req.body
+    const payload = req.body;
     const result = await SemesterRegistrationServices.withdrawFromCourses(
       userData.userId,
       payload
@@ -135,7 +135,6 @@ const confirmMyRegistrationController = catchAsync(
   async (req: Request, res: Response) => {
     const userData = (req as any).user;
 
-
     const result = await SemesterRegistrationServices.confirmMyRegistration(
       userData.userId
     );
@@ -152,7 +151,6 @@ const getMyRegistrationController = catchAsync(
   async (req: Request, res: Response) => {
     const userData = (req as any).user;
 
-
     const result = await SemesterRegistrationServices.getMyRegistration(
       userData.userId
     );
@@ -161,6 +159,20 @@ const getMyRegistrationController = catchAsync(
       statusCode: httpStatus.OK,
       success: true,
       message: 'Your registration Found',
+      data: result,
+    });
+  }
+);
+const startNewSemesterController = catchAsync(
+  async (req: Request, res: Response) => {
+    const {id} = req.params;
+
+    const result = await SemesterRegistrationServices.startNewSemester(id);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Semester started Successfully',
       data: result,
     });
   }
@@ -176,5 +188,6 @@ export const SemesterRegistrationController = {
   enrollIntoCoursesController,
   withdrawFromCoursesController,
   confirmMyRegistrationController,
-  getMyRegistrationController
+  getMyRegistrationController,
+  startNewSemesterController,
 };
