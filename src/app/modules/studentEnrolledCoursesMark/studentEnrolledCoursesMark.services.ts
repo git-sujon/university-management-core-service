@@ -1,4 +1,4 @@
-import { ExamType, PrismaClient } from '@prisma/client';
+import { ExamType, PrismaClient, StudentEnrolledCoursesStatus } from '@prisma/client';
 import prisma from '../../../shared/prisma';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
@@ -140,12 +140,79 @@ const updateStudentMarks = async (payload: any) => {
   return updateMarks;
 };
 
-const updateTotalMarks = (payload:any) => {
-  console.log(payload)
-}
+const updateTotalMarks = async (payload: any) => {
+  const { studentId, academicSemesterId, courseId } = payload;
+  const studentEnrolledCoursesInfo =
+    await prisma.studentEnrolledCourses.findFirst({
+      where: {
+        studentId,
+        academicSemesterId,
+        courseId,
+      },
+    });
+  if (!studentEnrolledCoursesInfo) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Student enroll course not found'
+    );
+  }
+
+  const studentEnrolledCoursesMarks =
+    await prisma.studentEnrolledCoursesMark.findMany({
+      where: {
+        student: {
+          id: studentId,
+        },
+        academicSemester: {
+          id: academicSemesterId,
+        },
+        studentEnrolledCourses: {
+          course: {
+            id: courseId,
+          },
+        },
+      },
+    });
+
+
+    if (!studentEnrolledCoursesMarks.length) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Student enroll course marks not found'
+    );
+  }
+
+  const midtermMark = studentEnrolledCoursesMarks.find((item => item.examType === "MIDTERM"))?.marks ||0
+  const finalMark = studentEnrolledCoursesMarks.find((item => item.examType === "FINAL"))?.marks || 0
+
+const totalMarks = Math.ceil(midtermMark * 0.4 + finalMark * 0.6)
+
+const grade = await StudentEnrolledCoursesMarkUtils.getGradeByMarks(totalMarks)
+const point = await StudentEnrolledCoursesMarkUtils.getPointsByMarks(totalMarks)
+
+
+
+
+
+    const result = await prisma.studentEnrolledCourses.updateMany({
+      where: {
+        studentId,
+        academicSemesterId,
+        courseId,
+      },
+      data:{
+        grade,
+        point,
+        totalMarks,
+        status:StudentEnrolledCoursesStatus.COMPLETED
+      }
+    })
+
+ return result
+};
 
 export const StudentEnrolledCoursesMarkServices = {
   createStudentEnrolledCoursesMark,
   updateStudentMarks,
-  updateTotalMarks
+  updateTotalMarks,
 };
