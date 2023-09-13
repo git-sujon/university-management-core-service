@@ -1,9 +1,11 @@
 import {
   ExamType,
   PrismaClient,
-  StudentEnrolledCoursesMark,
 } from '@prisma/client';
 import prisma from '../../../shared/prisma';
+import ApiError from '../../../errors/ApiError';
+import httpStatus from 'http-status';
+import { StudentEnrolledCoursesMarkUtils } from './studentEnrolledCoursesMark.utils';
 
 const createStudentEnrolledCoursesMark = async (
   startNewSemesterTransaction: Omit<
@@ -101,20 +103,47 @@ const createStudentEnrolledCoursesMark = async (
   }
 };
 
-const updateStudentMarks = async (
-  payload: Partial<StudentEnrolledCoursesMark>
-) => {
-  const result = await prisma.studentEnrolledCoursesMark.updateMany({
+const updateStudentMarks = async (payload: any) => {
+  const { studentId, academicSemesterId, courseId, marks, examType } = payload;
+
+  const studentEnrolledCoursesMarkInfo =
+    await prisma.studentEnrolledCoursesMark.findFirst({
+      where: {
+        student: {
+          id: studentId,
+        },
+        academicSemester: {
+          id: academicSemesterId,
+        },
+        studentEnrolledCourses: {
+          course: {
+            id: courseId,
+          },
+        },
+        examType,
+      },
+    });
+
+  if (!studentEnrolledCoursesMarkInfo) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'enroll course marks not found');
+  }
+
+  const grade = await StudentEnrolledCoursesMarkUtils.getGradeByMarks(marks)
+
+  console.log("grade:", grade)
+
+
+  const updateMarks = await prisma.studentEnrolledCoursesMark.update({
     where: {
-      studentId: payload.studentId,
-      studentEnrolledCoursesId: payload.studentEnrolledCoursesId,
-      academicSemesterId: payload.academicSemesterId,
-      examType: payload.examType,
+      id: studentEnrolledCoursesMarkInfo.id,
     },
-    data: payload,
+    data: {
+      marks,
+      grade,
+    },
   });
 
-  return result;
+  return updateMarks;
 };
 
 export const StudentEnrolledCoursesMarkServices = {
