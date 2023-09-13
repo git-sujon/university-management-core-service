@@ -1,7 +1,4 @@
-import {
-  ExamType,
-  PrismaClient,
-} from '@prisma/client';
+import { ExamType, PrismaClient } from '@prisma/client';
 import prisma from '../../../shared/prisma';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
@@ -128,10 +125,7 @@ const updateStudentMarks = async (payload: any) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'enroll course marks not found');
   }
 
-  const grade = await StudentEnrolledCoursesMarkUtils.getGradeByMarks(marks)
-
-  console.log("grade:", grade)
-
+  const grade = await StudentEnrolledCoursesMarkUtils.getGradeByMarks(marks);
 
   const updateMarks = await prisma.studentEnrolledCoursesMark.update({
     where: {
@@ -146,7 +140,12 @@ const updateStudentMarks = async (payload: any) => {
   return updateMarks;
 };
 
+const updateTotalMarks = (payload:any) => {
+  console.log(payload)
+}
+
 export const StudentEnrolledCoursesMarkServices = {
   createStudentEnrolledCoursesMark,
   updateStudentMarks,
+  updateTotalMarks
 };
