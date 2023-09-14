@@ -1,4 +1,8 @@
-import { ExamType, PrismaClient, StudentEnrolledCoursesStatus } from '@prisma/client';
+import {
+  ExamType,
+  PrismaClient,
+  StudentEnrolledCoursesStatus,
+} from '@prisma/client';
 import prisma from '../../../shared/prisma';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
@@ -174,41 +178,97 @@ const updateTotalMarks = async (payload: any) => {
       },
     });
 
-
-    if (!studentEnrolledCoursesMarks.length) {
+  if (!studentEnrolledCoursesMarks.length) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
       'Student enroll course marks not found'
     );
   }
 
-  const midtermMark = studentEnrolledCoursesMarks.find((item => item.examType === "MIDTERM"))?.marks ||0
-  const finalMark = studentEnrolledCoursesMarks.find((item => item.examType === "FINAL"))?.marks || 0
+  const midtermMark =
+    studentEnrolledCoursesMarks.find(item => item.examType === 'MIDTERM')
+      ?.marks || 0;
+  const finalMark =
+    studentEnrolledCoursesMarks.find(item => item.examType === 'FINAL')
+      ?.marks || 0;
 
-const totalMarks = Math.ceil(midtermMark * 0.4 + finalMark * 0.6)
+  const totalMarks = Math.ceil(midtermMark * 0.4 + finalMark * 0.6);
 
-const grade = await StudentEnrolledCoursesMarkUtils.getGradeByMarks(totalMarks)
-const point = await StudentEnrolledCoursesMarkUtils.getPointsByMarks(totalMarks)
+  const grade = await StudentEnrolledCoursesMarkUtils.getGradeByMarks(
+    totalMarks
+  );
+  const point = await StudentEnrolledCoursesMarkUtils.getPointsByMarks(
+    totalMarks
+  );
 
+  await prisma.studentEnrolledCourses.updateMany({
+    where: {
+      studentId,
+      academicSemesterId,
+      courseId,
+    },
+    data: {
+      grade,
+      point,
+      totalMarks,
+      status: StudentEnrolledCoursesStatus.COMPLETED,
+    },
+  });
 
-
-
-
-    const result = await prisma.studentEnrolledCourses.updateMany({
-      where: {
-        studentId,
-        academicSemesterId,
-        courseId,
+  const grades = await prisma.studentEnrolledCourses.findMany({
+    where: {
+      student: {
+        id: studentId,
       },
-      data:{
-        grade,
-        point,
-        totalMarks,
-        status:StudentEnrolledCoursesStatus.COMPLETED
-      }
-    })
+      status: StudentEnrolledCoursesStatus.COMPLETED,
+    },
+    include: {
+      student:true,
+      academicSemester:true,
+      course: true,
+    },
+  });
 
- return result
+  const academicResult =
+    await StudentEnrolledCoursesMarkUtils.calculateTotalCgpaAndGrade(grades);
+
+  const isStudentAcademicInfoExist = await prisma.studentAcademicInfo.findFirst(
+    {
+      where: {
+        student: {
+          id: studentId,
+        },
+      },
+    }
+  );
+
+  if (isStudentAcademicInfoExist) {
+    await prisma.studentAcademicInfo.update({
+      where: {
+        id: isStudentAcademicInfoExist.id,
+      },
+      data: {
+        totalCompletedCredit: academicResult.totalCompletedCredit,
+        cgpa: academicResult.cgpa,
+      },
+    });
+  }
+  else{
+    await prisma.studentAcademicInfo.create({
+      data: {
+        student: {
+          connect: {
+            id: studentId,
+          },
+        },
+        totalCompletedCredit: academicResult.totalCompletedCredit,
+        cgpa: academicResult.cgpa,
+      },
+    });
+  }
+
+
+  return grades
 };
 
 export const StudentEnrolledCoursesMarkServices = {
