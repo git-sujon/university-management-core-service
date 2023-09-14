@@ -15,3 +15,5 @@ export const studentFilterAbleFields = [
   'email',
   'contactNo',
 ];
+
+export const myCoursesFilterAbleFields = ["courseId", "academicSemesterId"]

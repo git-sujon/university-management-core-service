@@ -4,7 +4,7 @@ import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import prisma from '../../../shared/prisma';
-import { IStudentSearchTerm } from './student.interface';
+import { IMyCoursesFilterAbleFields, IStudentSearchTerm } from './student.interface';
 import { studentSearchAbleFields } from './student.contents';
 
 const insertIntoDb = async (studentData: Student) => {
@@ -94,20 +94,31 @@ const UpdateData = async (
 };
 
 
-const myCourses =async(authUserId:string) => {
-const isActiveSemester = await prisma.academicSemester.findFirst({
-  where:{
-    isActive:true
-  }
-})
+const myCourses =async(
+  authUserId:string,
+  filters:IMyCoursesFilterAbleFields
+  ) => {
 
+
+if(!filters.academicSemesterId){
+  const isActiveSemester = await prisma.academicSemester.findFirst({
+    where:{
+      isActive:true
+    }
+  })
+
+  filters.academicSemesterId= isActiveSemester?.id
+}
 
 const studentEnrolledCourses= await prisma.studentEnrolledCourses.findMany({
   where:{
     student:{
       studentId:authUserId
     },
-    academicSemesterId:isActiveSemester?.id
+    ...filters
+  },
+  include:{
+    course:true
   }
 })
 

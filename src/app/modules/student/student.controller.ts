@@ -5,7 +5,7 @@ import catchAsync from '../../../shared/catchAsync';
 import pick from '../../../shared/pick';
 import sendResponse from '../../../shared/sendResponse';
 import { StudentServices } from './student.services';
-import { studentFilterAbleFields } from './student.contents';
+import { myCoursesFilterAbleFields, studentFilterAbleFields } from './student.contents';
 
 const insertIntoDbController = catchAsync(
   async (req: Request, res: Response) => {
@@ -66,7 +66,8 @@ const updateDataController = catchAsync(async (req: Request, res: Response) => {
 });
 const myCoursesController = catchAsync(async (req: Request, res: Response) => {
   const authUser = (req as any).user;
-  const result = await StudentServices.myCourses(authUser.userId);
+  const filters = pick(req.query, myCoursesFilterAbleFields)
+  const result = await StudentServices.myCourses(authUser.userId, filters);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
