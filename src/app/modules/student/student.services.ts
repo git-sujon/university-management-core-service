@@ -93,6 +93,28 @@ const UpdateData = async (
   return result;
 };
 
+
+const myCourses =async(authUserId:string) => {
+const isActiveSemester = await prisma.academicSemester.findFirst({
+  where:{
+    isActive:true
+  }
+})
+
+
+const studentEnrolledCourses= await prisma.studentEnrolledCourses.findMany({
+  where:{
+    student:{
+      studentId:authUserId
+    },
+    academicSemesterId:isActiveSemester?.id
+  }
+})
+
+return studentEnrolledCourses
+
+}
+
 const deleteData = async (id: string): Promise<Student | null> => {
   const result = await prisma.student.delete({
     where: {
@@ -108,4 +130,5 @@ export const StudentServices = {
   getDataByID,
   UpdateData,
   deleteData,
+  myCourses
 };

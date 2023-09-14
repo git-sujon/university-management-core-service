@@ -7,8 +7,6 @@ import sendResponse from '../../../shared/sendResponse';
 import { StudentServices } from './student.services';
 import { studentFilterAbleFields } from './student.contents';
 
-
-
 const insertIntoDbController = catchAsync(
   async (req: Request, res: Response) => {
     const result = await StudentServices.insertIntoDb(req.body);
@@ -66,26 +64,36 @@ const updateDataController = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const myCoursesController = catchAsync(async (req: Request, res: Response) => {
+  const authUser = (req as any).user;
+  const result = await StudentServices.myCourses(authUser.userId);
 
-const deleteDataController = catchAsync(
-  async (req: Request, res: Response) => {
-    const { id } = req.params;
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Courses data fetch successfully',
+    data: result,
+  });
+});
 
-    const result = await StudentServices.deleteData(id);
+const deleteDataController = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
 
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'Data delete successfully',
-      data: result,
-    });
-  }
-);
+  const result = await StudentServices.deleteData(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Data delete successfully',
+    data: result,
+  });
+});
 
 export const StudentController = {
   insertIntoDbController,
   getAllFromDbController,
   getDataByIDController,
   updateDataController,
-  deleteDataController
+  deleteDataController,
+  myCoursesController,
 };

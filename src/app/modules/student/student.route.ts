@@ -13,6 +13,11 @@ router.post(
   validateRequest(StudentValidation.insertIntoDbValidation),
   StudentController.insertIntoDbController
 );
+router.get(
+  '/my-courses',
+  auth(ENUM_USER_ROLE.STUDENT),
+  StudentController.myCoursesController
+);
 router.get('/:id', StudentController.getDataByIDController);
 router.get('/', StudentController.getAllFromDbController);
 router.patch('/:id', StudentController.updateDataController);
